@@ -11,13 +11,29 @@
     <link rel="stylesheet" href="{% static 'core/css/modern-theme.css' %}">
     <style>
       :root { --bs-body-bg: #0f172a; --bs-body-color: #f1f5f9; }
-      body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; }
+      body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; margin: 0; padding: 0; }
       .navbar-public { background: linear-gradient(to right, #1e293b 0%, #334155 100%); border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
       .navbar-brand { font-size: 1.5rem; font-weight: 700; color: #fff !important; letter-spacing: -0.5px; }
       .nav-link { color: #cbd5e1 !important; font-weight: 500; transition: all 0.3s ease; }
       .nav-link:hover { color: #60a5fa !important; }
       .btn-outline-light { border: 2px solid #60a5fa; color: #60a5fa; font-weight: 600; }
       .btn-outline-light:hover { background: #60a5fa; border-color: #60a5fa; color: #0f172a; }
+      
+      /* Animations */
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes fadeInScale {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .animate-fade-in-up { animation: fadeInUp 0.8s ease-out; }
+      .animate-fade-in-scale { animation: fadeInScale 0.8s ease-out; }
+      
+      /* Hover effects */
+      .feature-card:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
+      .feature-card { transition: all 0.3s ease; }
     </style>
   </head>
   <body>
@@ -49,16 +65,18 @@
       </div>
     </nav>
 
-    <main class="container py-5">
+    <main>
       {% if messages %}
-        <div class="row">
-          <div class="col-12">
-            {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-              </div>
-            {% endfor %}
+        <div class="container">
+          <div class="row">
+            <div class="col-12">
+              {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+              {% endfor %}
+            </div>
           </div>
         </div>
       {% endif %}
@@ -66,9 +84,9 @@
       {% block content %}{% endblock %}
     </main>
 
-    <footer class="py-4 bg-light border-top mt-auto">
+    <footer class="py-4 border-top" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-color: rgba(255,255,255,0.1) !important;">
       <div class="container text-center">
-        <span class="text-muted">FinSight — Financial Risk Intelligence for the Public Sector</span>
+        <span style="color: #94a3b8;">FinSight — Financial Risk Intelligence for the Public Sector</span>
       </div>
     </footer>
 
