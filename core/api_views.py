@@ -8,10 +8,22 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Transaction, Alert, LedgerUpload, AuditLog, Report, ReportInstance
-from .exports import TransactionExporter, AlertExporter, AnalyticsReportExporter
 from .permissions import IsInGroup
-from .tasks import generate_report_instance
-from .predictive_analytics import PredictiveAnalyticsEngine, RiskPredictor
+
+
+def _get_exporters():
+    from .exports import TransactionExporter, AlertExporter, AnalyticsReportExporter
+    return TransactionExporter, AlertExporter, AnalyticsReportExporter
+
+
+def _get_predictive_classes():
+    from .predictive_analytics import PredictiveAnalyticsEngine, RiskPredictor
+    return PredictiveAnalyticsEngine, RiskPredictor
+
+
+def _get_generate_report_task():
+    from .tasks import generate_report_instance
+    return generate_report_instance
 
 
 @api_view(['GET'])
@@ -81,6 +93,7 @@ def export_transactions(request):
 
     # Export based on format
     try:
+        TransactionExporter, _, _ = _get_exporters()
         if export_format == 'excel':
             return TransactionExporter.export_excel(queryset, filename)
         elif export_format == 'pdf':
@@ -149,6 +162,7 @@ def export_alerts(request):
     queryset = queryset.order_by('-created_at')[:5000]  # Max 5k records
 
     try:
+        _, AlertExporter, _ = _get_exporters()
         if export_format == 'excel':
             return AlertExporter.export_excel(queryset, filename)
         elif export_format == 'pdf':
@@ -189,6 +203,7 @@ def export_analytics_report(request):
             return Response({'error': 'Invalid end_date format. Use YYYY-MM-DD'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
+        _, _, AnalyticsReportExporter = _get_exporters()
         return AnalyticsReportExporter.export_summary_pdf(start_date, end_date, filename)
     except Exception as e:
         return Response({'error': f'Report generation failed: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -477,6 +492,7 @@ def generate_report_now(request, report_id):
 
     try:
         # Trigger report generation
+        generate_report_instance = _get_generate_report_task()
         generate_report_instance.delay(report_id)
         return Response({'message': 'Report generation started successfully'})
     except Exception as e:
@@ -623,6 +639,7 @@ def risk_forecast(request):
             return Response({'error': 'Insufficient historical data for forecasting'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Initialize predictive analytics engine
+        PredictiveAnalyticsEngine, _ = _get_predictive_classes()
         engine = PredictiveAnalyticsEngine()
 
         # Prepare time series data
@@ -695,6 +712,7 @@ def predict_transaction_risk(request):
         }
 
         # Initialize risk predictor
+        _, RiskPredictor = _get_predictive_classes()
         predictor = RiskPredictor()
 
         # Generate prediction
@@ -747,6 +765,7 @@ def trend_analysis(request):
             return Response({'error': 'No transaction data available for analysis'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Initialize analytics engine
+        PredictiveAnalyticsEngine, _ = _get_predictive_classes()
         engine = PredictiveAnalyticsEngine()
 
         # Prepare time series data
@@ -819,6 +838,7 @@ def anomaly_detection(request):
             return Response({'error': 'Insufficient data for anomaly detection (minimum 14 days required)'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Initialize analytics engine
+        PredictiveAnalyticsEngine, _ = _get_predictive_classes()
         engine = PredictiveAnalyticsEngine()
 
         # Prepare time series data

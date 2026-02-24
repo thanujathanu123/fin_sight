@@ -47,12 +47,13 @@
           <ul class="navbar-nav ms-auto align-items-lg-center gap-3">
             <li class="nav-item">
               <button class="btn btn-link nav-link text-decoration-none" id="themeSwitcher">
-                <i class="bi bi-moon-fill"></i>
+                <i class="bi bi-moon-fill theme-icon-dark"></i>
+                <i class="bi bi-sun-fill theme-icon-light d-none"></i>
                 <span class="ms-2 d-none d-lg-inline">Theme</span>
               </button>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Live Demo</a>
+              <a class="nav-link" href="{% url 'demo' %}">Live Demo</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'login' %}">Sign In</a>
@@ -106,8 +107,14 @@
         const setTheme = (theme) => {
           document.documentElement.setAttribute('data-bs-theme', theme);
           localStorage.setItem('theme', theme);
-          document.querySelector('.theme-icon-dark').classList.toggle('d-none', theme === 'dark');
-          document.querySelector('.theme-icon-light').classList.toggle('d-none', theme === 'light');
+          const darkIcon = document.querySelector('.theme-icon-dark');
+          const lightIcon = document.querySelector('.theme-icon-light');
+          if (darkIcon) {
+            darkIcon.classList.toggle('d-none', theme === 'dark');
+          }
+          if (lightIcon) {
+            lightIcon.classList.toggle('d-none', theme === 'light');
+          }
         };
 
         setTheme(getPreferredTheme());
