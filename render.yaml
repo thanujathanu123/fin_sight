@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: fin-sight
+    env: python
+    plan: free
+    buildCommand: "bash build.sh"
+    startCommand: "gunicorn finsight.wsgi:application"
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.11.10"
