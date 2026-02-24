@@ -1,0 +1,274 @@
+{% extends 'core/base_public.html' %}
+
+{% block title %}FinSight - Financial Risk Intelligence{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section position-relative overflow-hidden">
+  <div class="container-fluid px-4">
+    <div class="row align-items-center min-vh-75">
+      <div class="col-lg-6">
+        <div class="hero-content animate-fade-in-up">
+          <div class="hero-badge mb-4">
+            <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">
+              <i class="bi bi-stars me-2"></i>Next-Generation Risk Intelligence
+            </span>
+          </div>
+
+          <h1 class="display-3 fw-bold mb-4 lh-1">
+            Financial Risk Intelligence for the
+            <span class="text-gradient">Public Sector</span>
+          </h1>
+
+          <p class="lead mb-4 fs-5 text-muted">
+            Transform your financial oversight with AI-powered anomaly detection,
+            collaborative review workflows, and real-time risk scoring that keeps
+            your organization ahead of emerging threats.
+          </p>
+
+          <div class="hero-actions d-flex gap-3 flex-wrap mb-4">
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-4 py-3 btn-ripple">
+              <i class="bi bi-rocket-takeoff me-2"></i>Start Free Trial
+            </a>
+            <a href="#features" class="btn btn-outline-primary btn-lg px-4 py-3">
+              <i class="bi bi-play-circle me-2"></i>Watch Demo
+            </a>
+          </div>
+
+          <div class="hero-stats d-flex gap-4 flex-wrap">
+            <div class="stat-item">
+              <div class="stat-number h3 mb-1 text-primary">48%</div>
+              <div class="stat-label small text-muted">Time Saved</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number h3 mb-1 text-success">99.9%</div>
+              <div class="stat-label small text-muted">Accuracy Rate</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number h3 mb-1 text-info">24/7</div>
+              <div class="stat-label small text-muted">Monitoring</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mt-5 mt-lg-0">
+        <div class="hero-visual animate-fade-in-scale">
+          <div class="dashboard-preview">
+            <div class="preview-header">
+              <div class="preview-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div class="preview-title">FinSight Dashboard</div>
+            </div>
+            <div class="preview-content">
+              <div class="preview-chart">
+                <div class="chart-bars">
+                  <div class="bar" style="height: 40%"></div>
+                  <div class="bar" style="height: 60%"></div>
+                  <div class="bar" style="height: 80%"></div>
+                  <div class="bar" style="height: 30%"></div>
+                  <div class="bar" style="height: 70%"></div>
+                  <div class="bar" style="height: 50%"></div>
+                </div>
+              </div>
+              <div class="preview-cards">
+                <div class="preview-card risk-high">
+                  <div class="card-icon"><i class="bi bi-exclamation-triangle"></i></div>
+                  <div class="card-content">
+                    <div class="card-value">87.3</div>
+                    <div class="card-label">Risk Score</div>
+                  </div>
+                </div>
+                <div class="preview-card alerts">
+                  <div class="card-icon"><i class="bi bi-bell"></i></div>
+                  <div class="card-content">
+                    <div class="card-value">12</div>
+                    <div class="card-label">Active Alerts</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background Elements -->
+  <div class="hero-bg-shape shape-1"></div>
+  <div class="hero-bg-shape shape-2"></div>
+  <div class="hero-bg-shape shape-3"></div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features-section py-5">
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8 text-center">
+        <h2 class="display-5 fw-bold mb-4">
+          Powerful Features for
+          <span class="text-gradient">Modern Risk Management</span>
+        </h2>
+        <p class="lead text-muted fs-5">
+          Comprehensive tools designed specifically for public sector financial oversight
+        </p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card animate-fade-in-up">
+          <div class="feature-icon mb-4">
+            <div class="icon-circle">
+              <i class="bi bi-cloud-upload text-primary fs-1"></i>
+            </div>
+          </div>
+          <h4 class="feature-title mb-3">Smart Data Ingestion</h4>
+          <p class="feature-description text-muted">
+            Securely upload and process ledger files with automatic categorization,
+            data validation, and instant risk scoring using advanced AI algorithms.
+          </p>
+          <a href="{% url 'upload_ledger' %}" class="feature-link">
+            <span>Try Upload</span>
+            <i class="bi bi-arrow-right ms-2"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card animate-fade-in-up">
+          <div class="feature-icon mb-4">
+            <div class="icon-circle">
+              <i class="bi bi-search text-success fs-1"></i>
+            </div>
+          </div>
+          <h4 class="feature-title mb-3">Intelligent Analysis</h4>
+          <p class="feature-description text-muted">
+            Advanced anomaly detection identifies suspicious patterns, unusual transactions,
+            and potential compliance violations across your entire financial ecosystem.
+          </p>
+          <a href="{% url 'auditor_dashboard' %}" class="feature-link">
+            <span>View Analytics</span>
+            <i class="bi bi-arrow-right ms-2"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="feature-card animate-fade-in-up">
+          <div class="feature-icon mb-4">
+            <div class="icon-circle">
+              <i class="bi bi-people text-info fs-1"></i>
+            </div>
+          </div>
+          <h4 class="feature-title mb-3">Collaborative Workflows</h4>
+          <p class="feature-description text-muted">
+            Streamlined review processes with role-based access, automated assignments,
+            and comprehensive audit trails for complete transparency and accountability.
+          </p>
+          <a href="{% url 'reviewer_dashboard' %}" class="feature-link">
+            <span>Explore Workflows</span>
+            <i class="bi bi-arrow-right ms-2"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section py-5 bg-light">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card-large text-center animate-fade-in-scale">
+          <div class="stat-icon-large mb-3">
+            <i class="bi bi-graph-down text-primary"></i>
+          </div>
+          <div class="stat-number-large display-4 fw-bold text-primary mb-2">48%</div>
+          <div class="stat-label-large">Reduction in Manual Review Effort</div>
+          <div class="stat-description small text-muted mt-2">
+            Automate routine checks and focus on high-value analysis
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card-large text-center animate-fade-in-scale">
+          <div class="stat-icon-large mb-3">
+            <i class="bi bi-lightning text-warning"></i>
+          </div>
+          <div class="stat-number-large display-4 fw-bold text-warning mb-2">3x</div>
+          <div class="stat-label-large">Faster Anomaly Detection</div>
+          <div class="stat-description small text-muted mt-2">
+            Identify and escalate issues before they become problems
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card-large text-center animate-fade-in-scale">
+          <div class="stat-icon-large mb-3">
+            <i class="bi bi-shield-check text-success"></i>
+          </div>
+          <div class="stat-number-large display-4 fw-bold text-success mb-2">99.9%</div>
+          <div class="stat-label-large">Audit Trail Coverage</div>
+          <div class="stat-description small text-muted mt-2">
+            Complete documentation for regulatory compliance
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stat-card-large text-center animate-fade-in-scale">
+          <div class="stat-icon-large mb-3">
+            <i class="bi bi-clock text-info"></i>
+          </div>
+          <div class="stat-number-large display-4 fw-bold text-info mb-2">24/7</div>
+          <div class="stat-label-large">Continuous Monitoring</div>
+          <div class="stat-description small text-muted mt-2">
+            Round-the-clock surveillance and alerting capabilities
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <div class="cta-content">
+          <h2 class="display-5 fw-bold mb-4">
+            Ready to Transform Your
+            <span class="text-gradient">Financial Oversight?</span>
+          </h2>
+          <p class="lead text-muted mb-4 fs-5">
+            Join leading public sector organizations that trust FinSight for their
+            critical financial risk management needs.
+          </p>
+          <div class="cta-actions d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5 py-3 btn-ripple">
+              <i class="bi bi-person-plus me-2"></i>Get Started Free
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg px-5 py-3">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            </a>
+          </div>
+          <div class="cta-footer mt-4">
+            <small class="text-muted">
+              <i class="bi bi-shield-check me-2"></i>
+              SOC 2 Type II Certified • GDPR Compliant • FedRAMP Ready
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

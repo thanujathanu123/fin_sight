@@ -1,0 +1,430 @@
+{% extends 'core/base.html' %}
+{% load metric_formatters %}
+
+{% block title %}Review Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-lg-8">
+        <div class="dashboard-header">
+            <h2 class="mb-2">
+                <i class="bi bi-shield-check text-primary me-3"></i>
+                Risk Review Center
+            </h2>
+            <p class="text-muted mb-0 lead">
+                <i class="bi bi-calendar-event me-2"></i>
+                Analysis Period: {{ time_window_start|date:"M d" }} – {{ time_window_end|date:"M d, Y" }}
+            </p>
+        </div>
+    </div>
+    <div class="col-lg-4 text-end">
+        <div class="d-flex gap-2 justify-content-end flex-wrap">
+            <button class="btn btn-outline-primary" onclick="window.print()" title="Print Report">
+                <i class="bi bi-printer me-2"></i>Print Report
+            </button>
+            <button class="btn btn-outline-secondary" onclick="exportData()" title="Export Data">
+                <i class="bi bi-download me-2"></i>Export
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <!-- Enhanced Risk Overview Cards -->
+    <div class="col-xl-3 col-lg-6 col-md-6">
+        <div class="dashboard-card card h-100 animate-fade-in-up hover-lift">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="card-icon">
+                        <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+                    </div>
+                    <div class="card-trend trend-up">
+                        <i class="bi bi-arrow-up-short"></i>
+                        <span class="small">+2.5%</span>
+                    </div>
+                </div>
+                <h6 class="card-subtitle mb-3 text-muted fw-semibold">Risk Level</h6>
+                <div class="risk-score risk-high mb-3">{{ stats.risk_score|format_metric:"percentage" }} <!-- DEBUG: {{ stats.risk_score }} --></div>
+                <p class="card-text text-muted small mb-0">Current Period Risk Score</p>
+                <div class="progress mt-3" style="height: 4px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ stats.risk_score|default:0 }}%" aria-valuenow="{{ stats.risk_score|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-lg-6 col-md-6">
+        <div class="dashboard-card card h-100 animate-fade-in-up hover-lift">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="card-icon">
+                        <i class="bi bi-check-circle text-success fs-4"></i>
+                    </div>
+                    <div class="card-trend trend-up">
+                        <i class="bi bi-arrow-up-short"></i>
+                        <span class="small">+12</span>
+                    </div>
+                </div>
+                <h6 class="card-subtitle mb-3 text-muted fw-semibold">Reviewed Items</h6>
+                <h2 class="card-title text-success mb-2">{{ stats.reviewed|format_metric }}</h2>
+                <p class="card-text text-muted small">Of {{ stats.assigned|format_metric }} assigned items</p>
+                <div class="progress mt-auto" style="height: 4px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio stats.reviewed stats.assigned 100 %}%" aria-valuenow="{{ stats.reviewed }}" aria-valuemin="0" aria-valuemax="{{ stats.assigned }}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-lg-6 col-md-6">
+        <div class="dashboard-card card h-100 animate-fade-in-up hover-lift">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="card-icon">
+                        <i class="bi bi-clock text-warning fs-4"></i>
+                    </div>
+                    <div class="card-trend trend-down">
+                        <i class="bi bi-arrow-down-short"></i>
+                        <span class="small">-3</span>
+                    </div>
+                </div>
+                <h6 class="card-subtitle mb-3 text-muted fw-semibold">Pending Review</h6>
+                <h2 class="card-title text-warning mb-2">{{ stats.pending_review|format_metric }}</h2>
+                <p class="card-text text-muted small">High priority items</p>
+                <div class="mt-auto">
+                    {% if stats.pending_review > 0 %}
+                        <span class="badge bg-warning-subtle text-warning">Action Required</span>
+                    {% else %}
+                        <span class="badge bg-success-subtle text-success">All Clear</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-lg-6 col-md-6">
+        <div class="dashboard-card card h-100 animate-fade-in-up hover-lift">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="card-icon">
+                        <i class="bi bi-stopwatch text-info fs-4"></i>
+                    </div>
+                    <div class="card-trend trend-neutral">
+                        <i class="bi bi-dash"></i>
+                        <span class="small">0.2h</span>
+                    </div>
+                </div>
+                <h6 class="card-subtitle mb-3 text-muted fw-semibold">Avg Resolution</h6>
+                <h2 class="card-title text-info mb-2">{{ stats.avg_resolution_time|default:"—" }}</h2>
+                <p class="card-text text-muted small">Time to close alerts</p>
+                <div class="mt-auto">
+                    <small class="text-muted">
+                        <i class="bi bi-graph-up me-1"></i>
+                        Target: &lt; 24h
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Visualizations Section -->
+<div class="row g-4 mb-5">
+    <div class="col-lg-6">
+        <div class="dashboard-card card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-1">
+                    <i class="bi bi-pie-chart text-primary me-2"></i>
+                    Risk Distribution
+                </h5>
+                <p class="card-subtitle text-muted small mb-0">Transaction risk breakdown</p>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px;">
+                    <canvas id="riskDistributionChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="dashboard-card card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-1">
+                    <i class="bi bi-bar-chart text-success me-2"></i>
+                    Alert Status Breakdown
+                </h5>
+                <p class="card-subtitle text-muted small mb-0">Alert resolution status</p>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px;">
+                    <canvas id="alertStatusChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Enhanced Risk Analysis Table -->
+    <div class="col-lg-8">
+        <div class="dashboard-card card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="card-title mb-1">
+                        <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                        High Risk Transactions
+                    </h5>
+                    <p class="card-subtitle text-muted small mb-0">Transactions requiring immediate attention</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary" onclick="refreshTable()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="filterTable()">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                {% if high_risk_alerts %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle datatable mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0 fw-semibold">
+                                        <i class="bi bi-calendar me-2 text-muted"></i>Date
+                                    </th>
+                                    <th class="border-0 fw-semibold">
+                                        <i class="bi bi-file-text me-2 text-muted"></i>Description
+                                    </th>
+                                    <th class="border-0 fw-semibold text-end">
+                                        <i class="bi bi-cash me-2 text-muted"></i>Amount
+                                    </th>
+                                    <th class="border-0 fw-semibold text-center">
+                                        <i class="bi bi-graph-up me-2 text-muted"></i>Risk Score
+                                    </th>
+                                    <th class="border-0 fw-semibold text-center">
+                                        <i class="bi bi-flag me-2 text-muted"></i>Status
+                                    </th>
+                                    <th class="border-0 fw-semibold text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alert in high_risk_alerts %}
+                                    <tr class="cursor-pointer" onclick="viewTransaction({{ alert.transaction.id }})">
+                                        <td class="fw-medium">{{ alert.transaction.date|date:"M d, Y" }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="transaction-icon me-3">
+                                                    <i class="bi bi-receipt text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium">{{ alert.transaction.description|truncatechars:40 }}</div>
+                                                    <small class="text-muted">ID: {{ alert.transaction.reference_id }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-end fw-semibold text-danger">
+                                            {{ alert.transaction.amount|format_metric:"currency" }}
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <span class="badge bg-danger-subtle text-danger fs-6 mb-1">
+                                                    {{ alert.transaction.risk_score|format_metric:"percentage" }}
+                                                </span>
+                                                <div class="risk-bar">
+                                                    <div class="risk-bar-fill" style="width: {{ alert.transaction.risk_score }}%"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge fs-6 px-3 py-2 {% if alert.status == 'resolved' %}bg-success-subtle text-success{% elif alert.status == 'in_progress' %}bg-warning-subtle text-warning{% else %}bg-secondary-subtle text-secondary{% endif %}">
+                                                {% if alert.status == 'resolved' %}
+                                                    <i class="bi bi-check-circle me-1"></i>
+                                                {% elif alert.status == 'in_progress' %}
+                                                    <i class="bi bi-clock me-1"></i>
+                                                {% else %}
+                                                    <i class="bi bi-circle me-1"></i>
+                                                {% endif %}
+                                                {{ alert.status|default:'new'|title }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); viewTransaction({{ alert.transaction.id }})" title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation(); updateStatus({{ alert.id }}, 'in_progress')" title="Mark In Progress">
+                                                    <i class="bi bi-play"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="empty-state-icon mb-3">
+                            <i class="bi bi-shield-check text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        <h6 class="text-muted">No High Risk Transactions</h6>
+                        <p class="text-muted small mb-0">All transactions are within acceptable risk parameters</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Sidebar -->
+    <div class="col-lg-4">
+        <!-- Review Progress -->
+        <div class="dashboard-card card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-1">
+                    <i class="bi bi-bar-chart text-primary me-2"></i>
+                    Review Progress
+                </h5>
+                <p class="card-subtitle text-muted small mb-0">Current status breakdown</p>
+            </div>
+            <div class="card-body">
+                {% if status_breakdown %}
+                    <div class="progress-overview mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted small">Overall Progress</span>
+                            <span class="fw-semibold">{{ status_breakdown|length }} categories</span>
+                        </div>
+                        <div class="progress-circle mb-4">
+                            <div class="progress-circle-fill" style="--progress: 75%"></div>
+                            <div class="progress-circle-text">
+                                <div class="h5 mb-0">75%</div>
+                                <small class="text-muted">Complete</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-breakdown">
+                        {% for status_item in status_breakdown %}
+                            <div class="status-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="status-dot me-2" style="background-color: {% if status_item.label == 'Resolved' %}#22c55e{% elif status_item.label == 'In Progress' %}#f59e0b{% else %}#6b7280{% endif %}"></div>
+                                        <span class="fw-medium">{{ status_item.label }}</span>
+                                    </div>
+                                    <div class="fw-semibold">{{ status_item.count|format_metric }}</div>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar {% if status_item.label == 'Resolved' %}bg-success{% elif status_item.label == 'In Progress' %}bg-warning{% else %}bg-secondary{% endif %}"
+                                         style="width: {{ status_item.percentage }}%;"></div>
+                                </div>
+                                <div class="text-end mt-1">
+                                    <small class="text-muted">{{ status_item.percentage }}%</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-graph-up text-muted" style="font-size: 2rem;"></i>
+                        <p class="text-muted mb-0 mt-2">No alerts assigned during this period.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="dashboard-card card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="card-title mb-1">
+                        <i class="bi bi-activity text-info me-2"></i>
+                        Recent Activity
+                    </h5>
+                    <p class="card-subtitle text-muted small mb-0">Latest review actions</p>
+                </div>
+                <button class="btn btn-sm btn-outline-info" onclick="viewAllActivity()">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="activity-timeline">
+                    <div class="activity-item mb-3">
+                        <div class="d-flex">
+                            <div class="activity-icon me-3">
+                                <i class="bi bi-check-circle text-success"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-medium small">Alert TX-2024-001 resolved</div>
+                                <div class="text-muted small">2 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item mb-3">
+                        <div class="d-flex">
+                            <div class="activity-icon me-3">
+                                <i class="bi bi-plus-circle text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-medium small">New high-risk transaction flagged</div>
+                                <div class="text-muted small">4 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="d-flex">
+                            <div class="activity-icon me-3">
+                                <i class="bi bi-person-plus text-info"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-medium small">John Doe assigned to review</div>
+                                <div class="text-muted small">6 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dashboard-card card">
+            <div class="card-header">
+                <h5 class="card-title mb-1">
+                    <i class="bi bi-lightning text-warning me-2"></i>
+                    Quick Actions
+                </h5>
+                <p class="card-subtitle text-muted small mb-0">Common review tasks</p>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="bulkApprove()">
+                        <i class="bi bi-check-all me-2"></i>Bulk Approve Low Risk
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm" onclick="escalateHighRisk()">
+                        <i class="bi bi-arrow-up-circle me-2"></i>Escalate High Risk
+                    </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="generateReport()">
+                        <i class="bi bi-file-earmark-text me-2"></i>Generate Report
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="exportData()">
+                        <i class="bi bi-download me-2"></i>Export Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass data from Django template to JavaScript
+    window.dashboardData = {
+        riskDistribution: [
+            {{ risk_distribution.0|default:0 }},
+            {{ risk_distribution.1|default:0 }},
+            {{ risk_distribution.2|default:0 }}
+        ],
+        statusBreakdown: {{ status_breakdown|safe }},
+        highRiskAlerts: {{ high_risk_alerts|length|default:0 }}
+    };
+</script>
+{% endblock %}

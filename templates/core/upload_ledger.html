@@ -1,0 +1,134 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="upload-container">
+    <div class="dashboard-header">
+        <h2 class="mb-2">
+            <i class="bi bi-cloud-upload text-primary me-3"></i>
+            Upload Ledger File
+        </h2>
+        <p class="text-muted mb-4">Securely upload and analyze your financial transaction data</p>
+
+        <div class="stats-summary">
+            <div class="stat-card animate-fade-in-scale">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon me-3">
+                        <i class="bi bi-file-earmark-spreadsheet text-primary fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="stat-label">Total Uploads</span>
+                        <span class="stat-value">{{ upload_count }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card animate-fade-in-scale">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon me-3">
+                        <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="stat-label">High Risk Transactions</span>
+                        <span class="stat-value text-danger">{{ high_risk_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="upload-form animate-fade-in-up" id="uploadForm">
+        {% csrf_token %}
+
+        <!-- Enhanced File Upload Area -->
+        <div class="file-upload-area" id="fileUploadArea">
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">
+                    <i class="bi bi-cloud-upload text-primary" id="uploadIcon"></i>
+                </div>
+                <div class="upload-text">
+                    <h5 class="upload-title">Drop your ledger file here</h5>
+                    <p class="upload-subtitle">or <span class="text-primary fw-semibold">browse to choose a file</span></p>
+                    <small class="text-muted">Supports CSV and Excel files up to 10MB</small>
+                </div>
+                <input type="file" name="file" id="fileInput" accept=".csv,.xlsx,.xls" required style="display: none;">
+            </div>
+            <div class="file-preview d-none" id="filePreview">
+                <div class="file-info">
+                    <i class="bi bi-file-earmark-spreadsheet text-success fs-2 me-3"></i>
+                    <div>
+                        <div class="file-name fw-semibold" id="fileName"></div>
+                        <small class="text-muted" id="fileSize"></small>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger" id="removeFile">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Risk Profile Selection -->
+        <div class="form-section">
+            <label for="id_risk_profile" class="form-label fw-semibold">
+                <i class="bi bi-shield-check text-primary me-2"></i>
+                Risk Analysis Profile
+            </label>
+            <select name="risk_profile" id="id_risk_profile" class="form-select">
+                <option value="">Use Default Profile</option>
+                {% for profile in risk_profiles %}
+                <option value="{{ profile.id }}">{{ profile.name }}</option>
+                {% endfor %}
+            </select>
+            <small class="form-text text-muted">Choose a custom risk analysis profile or use the default settings</small>
+        </div>
+
+        <!-- Upload Button -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg btn-ripple" id="uploadBtn" disabled>
+                <i class="bi bi-cloud-upload me-2"></i>
+                <span id="uploadBtnText">Upload & Analyze</span>
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="clearForm()">
+                <i class="bi bi-x-circle me-2"></i>Clear
+            </button>
+        </div>
+    </form>
+
+    {% if recent_uploads %}
+    <div class="recent-uploads">
+        <h3>Recent Uploads</h3>
+        <ul>
+            {% for upload in recent_uploads %}
+            <li class="upload-item">
+                <div class="upload-main">
+                    <strong>{{ upload.filename }}</strong>
+                    <span class="upload-meta">
+                        {{ upload.uploaded_at|date:"Y-m-d H:i" }}
+                        <span class="status-badge status-{{ upload.status }}">
+                            {{ upload.status|title }}
+                        </span>
+                    </span>
+                </div>
+                <div class="upload-details">
+                    {% if upload.risk_score %}
+                    <div class="risk-info">
+                        <span class="label">Risk Score:</span>
+                        <strong>{{ upload.risk_score|floatformat:2 }}</strong>
+                    </div>
+                    {% endif %}
+                    <div class="stats-info">
+                        <span class="label">Alerts:</span>
+                        <strong>{{ upload.alert_count }}</strong>
+                        <span class="label ml-3">High Risk:</span>
+                        <strong>{{ upload.calculated_high_risk_count }}</strong>
+                    </div>
+                    {% if upload.error_message %}
+                    <div class="error-message">
+                        {{ upload.error_message }}
+                    </div>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
