@@ -14,33 +14,48 @@ class Command(BaseCommand):
         email = os.getenv('DJANGO_SUPERUSER_EMAIL', 'admin@finsight.com')  
         password = os.getenv('DJANGO_SUPERUSER_PASSWORD', 'AdminPassword123!')
         
-        self.stdout.write(f'Attempting to create superuser: {username}')
+        self.stdout.write(f'🔍 Checking for existing superusers...')
         
-        # Check if any superuser already exists
-        if User.objects.filter(is_superuser=True).exists():
+        existing_superusers = User.objects.filter(is_superuser=True)
+        if existing_superusers.exists():
+            usernames = [u.username for u in existing_superusers]
             self.stdout.write(
-                self.style.WARNING('Superuser already exists, skipping creation.')
+                self.style.WARNING(f'✅ Superusers already exist: {", ".join(usernames)}')
             )
             return
         
-        # Create superuser with transaction
+        # Create superuser
+        self.stdout.write(f'👤 Creating superuser: {username}')
         try:
             with transaction.atomic():
-                # Create superuser without validation to avoid password issues
-                user = User(
+                User.objects.create_superuser(
                     username=username,
                     email=email,
-                    is_staff=True,
-                    is_superuser=True,
-                    is_active=True
+                    password=password
                 )
-                user.set_password(password)  # This handles password hashing
-                user.save()
-                
                 self.stdout.write(
-                    self.style.SUCCESS(f'Successfully created superuser: {username} with email: {email}')
+                    self.style.SUCCESS(f'✅ Successfully created superuser: {username}')
                 )
         except Exception as e:
             self.stdout.write(
-                self.style.ERROR(f'Error creating superuser: {str(e)}')
+                self.style.ERROR(f'❌ Error creating superuser: {str(e)}')
             )
+            # Try creating with basic attributes if create_superuser fails
+            try:
+                with transaction.atomic():
+                    user = User(
+                        username=username,
+                        email=email,
+                        is_staff=True,
+                        is_superuser=True,
+                        is_active=True
+                    )
+                    user.set_password(password)
+                    user.save()
+                    self.stdout.write(
+                        self.style.SUCCESS(f'✅ Fallback creation successful for: {username}')
+                    )
+            except Exception as e2:
+                self.stdout.write(
+                    self.style.ERROR(f'❌ Fallback also failed: {str(e2)}')
+                )
