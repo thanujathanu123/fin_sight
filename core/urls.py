@@ -1,6 +1,7 @@
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from . import views
+from .debug_views import debug_users_api
 from .api_views import (
     export_transactions, export_alerts, export_analytics_report,
     export_audit_log, export_ledger_summary, reports_list, report_detail,
@@ -9,6 +10,9 @@ from .api_views import (
 )
 
 urlpatterns = [
+    # Debug endpoint (for deployment verification)
+    path('debug/users/', debug_users_api, name='debug_users'),
+    
     # Authentication Views
     path('login/', views.RBACLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='core/login.html', next_page='login'), name='logout'),
