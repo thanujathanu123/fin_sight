@@ -80,19 +80,14 @@ WSGI_APPLICATION = 'finsight.wsgi.application'
 ASGI_APPLICATION = 'finsight.asgi.application'
 
 # Database configuration
-if 'DATABASE_URL' in os.environ:
-    # Production database (PostgreSQL on Render)
-    DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+# Using SQLite temporarily for quick admin access
+# TODO: Switch back to PostgreSQL later
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-else:
-    # Development database (SQLite)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
