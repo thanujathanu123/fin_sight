@@ -12,4 +12,7 @@ python manage.py collectstatic --noinput
 echo "Running migrations..."
 python manage.py migrate --noinput
 
+echo "Creating default superuser..."
+python manage.py create_default_superuser
+
 echo "Build complete!"
